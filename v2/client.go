@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/adshao/go-binance/v2/common"
@@ -230,6 +231,7 @@ type Client struct {
 	Logger     *log.Logger
 	TimeOffset int64
 	do         doFunc
+	weight     int
 }
 
 func (c *Client) debug(format string, v ...interface{}) {
@@ -316,6 +318,16 @@ func (c *Client) callAPI(ctx context.Context, r *request, opts ...RequestOption)
 	if err != nil {
 		return []byte{}, err
 	}
+	mbxWeight := res.Header["X-Mbx-Used-Weight"]
+	if len(mbxWeight) > 0 {
+		weight, _ := strconv.ParseInt(mbxWeight[0], 0, 64)
+		if weight > 1100 {
+			now := time.Now()
+			sl := time.Until(time.Date(now.Year(), now.Month(), now.Day(), now.Hour(), now.Minute()+1, 2, 0, now.Location()))
+			time.Sleep(sl)
+		}
+	}
+
 	data, err = ioutil.ReadAll(res.Body)
 	if err != nil {
 		return []byte{}, err
@@ -756,4 +768,34 @@ func (c *Client) NewInterestHistoryService() *InterestHistoryService {
 // NewTradeFeeService init the trade fee service
 func (c *Client) NewTradeFeeService() *TradeFeeService {
 	return &TradeFeeService{c: c}
+}
+
+// NewListStakingProductsService init the interest history service
+func (c *Client) NewListStakingProductsService() *ListStakingProductsService {
+	return &ListStakingProductsService{c: c}
+}
+
+// NewPurchaseStakingProductsService init the interest history service
+func (c *Client) NewPurchaseStakingProductsService() *PurchaseStakingProductService {
+	return &PurchaseStakingProductService{c: c}
+}
+
+// NewGetStakingPersonalLeftQuota init the interest history service
+func (c *Client) NewGetStakingPersonalLeftQuota() *GetStakingPersonalLeftQuota {
+	return &GetStakingPersonalLeftQuota{c: c}
+}
+
+// NewGetStakingProductPosition init the interest history service
+func (c *Client) NewGetStakingProductPosition() *GetStakingProductPosition {
+	return &GetStakingProductPosition{c: c}
+}
+
+// NewGetStakingProductPosition init the interest history service
+func (c *Client) NewGetStakingHistory() *GetStakingHistory {
+	return &GetStakingHistory{c: c}
+}
+
+// NewGetStakingLeftQuota init the interest history service
+func (c *Client) NewGetStakingLeftQuota() *GetStakingLeftDailyPurchaseQuota {
+	return &GetStakingLeftDailyPurchaseQuota{c: c}
 }
