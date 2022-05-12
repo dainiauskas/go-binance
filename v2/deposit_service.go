@@ -106,7 +106,8 @@ type Deposit struct {
 	TxID          string `json:"txId"`
 	InsertTime    int64  `json:"insertTime"`
 	TransferType  int64  `json:"transferType"`
-	UnlockConfirm string `json:"unlockConfirm"`
+	UnlockConfirm int    `json:"unlockConfirm"`
+	WithdrawDesc  string `json:"withdrawDesc"`
 	ConfirmTimes  string `json:"confirmTimes"`
 }
 
